@@ -1,52 +1,35 @@
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 from os import getenv
+import logging
+from handlers.help import peremoga
+from handlers.echo import echo
+from handlers.pictures import picture
+from handlers.mineinfo import moya_infa
+from handlers.start import start_command
+from handlers.adress import magazin_adress
+from handlers.magazin import shop_start
+from handlers.futbolki import t_shirts
+from handlers.shorty import shorts
 
 load_dotenv()
-
 bot = Bot(getenv("BOT_TOKEN"))
-
 dp = Dispatcher(bot)
 
 
+dp.register_message_handler(shorts, text='шорты')
+dp.register_message_handler(t_shirts, text="футболки")
+dp.register_callback_query_handler(shop_start, text='shop_start')
+dp.register_callback_query_handler(magazin_adress, text='magazin_adress')
+dp.register_message_handler(start_command, commands="start")
+dp.register_message_handler(moya_infa, commands="myinfo")
+dp.register_message_handler(peremoga, commands="help")
+dp.register_message_handler(picture, commands="picture")
+dp.register_message_handler(echo)
 
-@dp.message_handler(commands=["start"])
-async def start_hendler(message: types.Message):
-    await bot.send_message(message.from_user.id, f"Привет {message.from_user.first_name}")
-
-
-@dp.message_handler(commands=["help"])
-async def peremoga(message: types.Message):
-    await message.answer(f"""/start - старт программы
-                             /help - перемога
-                             /myinfo - информация о себе
-                             /picture - картинка""")
-
-
-@dp.message_handler(commands=["myinfo"])
-async def start_hendler(message: types.Message):
-
-    await message.answer(f'''
-id: {message.from_user.id}
-Name: {message.from_user.first_name}
-Last Name: {message.from_user.last_name}''')
-
-
-@dp.message_handler(commands=["picture"])
-async def start_hendler(message: types.Message):
-    await message.answer_photo(
-        open('./images/pep.jpg', 'rb'),
-        caption='Ajax pep'
-    )
-
-
-@dp.message_handler()
-async def echo(message: types.Message):
-    if len(message.text.split()) >= 3:
-        await bot.send_message(message.from_user.id, message.text.upper())
-    else:
-        await message.answer("yes")
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp)
+    logging.basicConfig(level=logging.INFO)
+    executor.start_polling(dp, skip_updates=True)
